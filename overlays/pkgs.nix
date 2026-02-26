@@ -1,5 +1,3 @@
-self: super: { 
-  rpi-sign-bootcode = (
-    super.callPackage ../pkgs/rpi-sign-bootcode.nix {}
-  );
+final: prev: { 
+  rpi-sign-bootcode = prev.callPackage ../pkgs/rpi-sign-bootcode.nix {};
 }
