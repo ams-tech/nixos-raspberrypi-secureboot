@@ -14,6 +14,22 @@ stdenv.mkDerivation (finalAttrs:
     ]);
   in{
 
+  meta = {
+    homepage = "https://github.com/raspberrypi/rpi-eeprom";
+    changelog = "https://github.com/raspberrypi/rpi-eeprom/blob/v${finalAttrs.version}/debian/changelog";
+    description = "Utility to sign a Raspberry Pi EEPROM bootloader";
+    mainProgram = "rpi-sign-bootcode";
+    license = lib.licenses.bsd3;
+    platforms = [
+      "aarch64-linux"
+      "aarch64-darwin"
+      "armv7l-linux"
+      "armv6l-linux"
+      "x86_64-linux"
+      "x86_64-darwin"
+    ];
+  };
+
   pname = "rpi-sign-bootcode";
   version = "2025.12.08-2712";
 
@@ -33,20 +49,4 @@ stdenv.mkDerivation (finalAttrs:
   '';
 
   passthru.updateScript = gitUpdater { };
-
-  meta = {
-    homepage = "https://github.com/raspberrypi/rpi-eeprom";
-    changelog = "https://github.com/raspberrypi/rpi-eeprom/blob/v${finalAttrs.version}/debian/changelog";
-    description = "Utility to sign a Raspberry Pi EEPROM bootloader";
-    mainProgram = "rpi-sign-bootcode";
-    license = lib.licenses.bsd3;
-    platforms = [
-      "aarch64-linux"
-      "aarch64-darwin"
-      "armv7l-linux"
-      "armv6l-linux"
-      "x86_64-linux"
-      "x86_64-darwin"
-    ];
-  };
 })
