@@ -22,11 +22,11 @@
           inherit config lib pkgs;
         };
       };
+      
       packages = {
+        default = pkgs.rpi-sign-bootcode;
         rpi-sign-bootcode = pkgs.rpi-sign-bootcode;
       };
-      # devShells.default = pkgs.mkShell { buildInputs = [ pkgs.hello ]; };
-      apps.rpi-sign-bootcode = flake-utils.lib.mkApp {drv = pkgs.rpi-sign-bootcode; };
     }
   );
 }
