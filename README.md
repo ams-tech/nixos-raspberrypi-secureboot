@@ -1,3 +1,7 @@
+## Runnng Tests
+
+Use `nix flake check -L`.  The `-L` flag is necessary to get useful outputs.
+
 ## Notes:
 
 * [rpi-sb-bootstrab.sh](https://github.com/raspberrypi/rpi-sb-provisioner/blob/bd49c37e2ee4d408793d83c0ef89b4872f567bfb/service/rpi-sb-bootstrap.sh#L455) seems to come really close to doing what we're attempting to do here.  That utility seems to do a lot of the heavy lifting WRT signing bootcode.bin, the bootloader configuration, and packaging them into pieeprom.bin.  Howerver, it may only install to devices connected over USB. To bootstrap the infrastructure, we want to allow a device to self-provision.
