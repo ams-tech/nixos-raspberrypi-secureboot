@@ -31,7 +31,7 @@
 
       # Checks are the automated tests for our flake.
       checks = {
-        rpi-sb-customer-key-tests = pkgs.callPackage ./checks/rpi-sb-customer-key-tests.nix {};
+        rpi-sb-customer-key-tests = pkgs.callPackage ./checks/rpi-sb-customer-key-tests/generate-key.nix {};
       };
     }
   );
