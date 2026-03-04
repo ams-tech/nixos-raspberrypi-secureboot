@@ -17,15 +17,21 @@
       };
     in 
     {
-      nixosModules = {
-        rpi-sign-bootcode = { config, lib, pkgs, ... }: import ./modules/rpi-sign-bootcode.nix {
-          inherit config lib pkgs;
-        };
-      };
+      # nixosModules = {
+      #   rpi-sign-bootcode = { config, lib, pkgs, ... }: import ./modules/rpi-sign-bootcode.nix {
+      #     inherit config lib pkgs;
+      #  };
+      # };
       
+      # Packages are the actual binaries & other artifacts that can be used by users and nixOSModules. They are meant to be installed in the system or used in development environments.
       packages = {
         default = pkgs.rpi-sign-bootcode;
         rpi-sign-bootcode = pkgs.rpi-sign-bootcode;
+      };
+
+      # Checks are the automated tests for our flake.
+      checks = {
+        rpi-sb-customer-key-tests = pkgs.callPackage ./checks/rpi-sb-customer-key-tests.nix {};
       };
     }
   );
