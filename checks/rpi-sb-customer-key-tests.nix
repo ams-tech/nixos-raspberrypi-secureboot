@@ -5,11 +5,11 @@ testers.runNixOSTest {
   # `nodes` define the VMs we spin up as part of this test.
   nodes = {
     # Our mock raspberry pi, which does not have an existing key provided.
-    raspberryPi = {
-      config = { config, ... }: {
-        services.rpiSbCustomerKey.enable = true;
+    raspberryPi = 
+      { ... }:
+      {
+
       };
-    };
   };
 
   # `testScript` is a Python script using unittest-like statements.
