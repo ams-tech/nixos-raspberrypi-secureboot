@@ -8,21 +8,23 @@ testers.runNixOSTest {
     raspberryPi = 
       { ... }:
       {
-
+        imports = [ ../../modules/rpi-sb-customer-key.nix ];  # Import our module to generate the customer key
+        services.rpiSbCustomerKey = 
+        {
+          enable = true;
+        };
       };
   };
 
   # `testScript` is a Python script using unittest-like statements.
-  # TODO: Find a link to the docs for this. https://nixos.org/manual/nixos/stable/index.html#sec-nixos-tests is close
-  # adam@malak:~/nixos-raspberrypi-secureboot$ openssl genrsa 2048 > your_private_key.key
-  # adam@malak:~/nixos-raspberrypi-secureboot$ openssl rsa -in your_private_key.key -check -noout
+  # See the docs here: https://nixos.org/manual/nixos/stable/index.html#sec-nixos-tests is close
   testScript = ''
     start_all()
-    raspberryPi.wait_for_unit("rpi-sb-customer-key.service")
+    raspberryPi.wait_for_unit("rpi-sb-customer-key.service")  # Wait for our service to run, which creates the key
 
     # Check that our public key exists & matches our private key
-    raspberriPi.success("ssh-keygen -y -e -f /run/secrets/rpi-sb-customer-private-key |")
-    raspberryPi.assert_file_exists("/run/secrets/rpi-sb-customer-private-key")
-    raspberryPi.assert_file_exists("/run/rpi-sb-customer-key/rpi-sb-customer-public-key")
+    raspberriPi.succeed("openssl rsa -in /run/secrets/rpi-sb-customer-private-key -check -noout")
+    raspberriPi.succeed("openssl rsa -in /run/secrets/rpi-sb-customer-private-key -pubout | grep -qf /run/rpi-sb-customer-key/rpi-sb-customer-public-key")
+    # Check that the private key is 2048 bits long
   '';
 }
