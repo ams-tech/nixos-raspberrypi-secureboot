@@ -14,9 +14,11 @@ in
   config = lib.mkIf cfg.enable {
     systemd.services."rpi-sb-customer-key" = {
       wantedBy = [ "multi-user.target" ];
+      after = [ "local-fs.target" ];
       serviceConfig = {
         User = "rpi-sb-customer-key";
         WorkingDirectory = "/var/lib/rpi-sb-customer-key";
+        RequiresMountsFor = "/var/lib/rpi-sb-customer-key";
         Type="oneshot";
         RemainAfterExit = true;
         ExecStart = ''
