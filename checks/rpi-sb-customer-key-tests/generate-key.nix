@@ -23,8 +23,8 @@ testers.runNixOSTest {
     raspberryPi.wait_for_unit("rpi-sb-customer-key.service")  # Wait for our service to run, which creates the key
 
     # Check that our public key exists & matches our private key
-    raspberriPi.succeed("openssl rsa -in /run/secrets/rpi-sb-customer-private-key -check -noout")
-    raspberriPi.succeed("openssl rsa -in /run/secrets/rpi-sb-customer-private-key -pubout | grep -qf /run/rpi-sb-customer-key/rpi-sb-customer-public-key")
+    raspberryPi.succeed("openssl rsa -in /run/secrets/rpi-sb-customer-private-key -check -noout")
+    raspberryPi.succeed("openssl rsa -in /run/secrets/rpi-sb-customer-private-key -pubout | grep -qf /run/rpi-sb-customer-key/rpi-sb-customer-public-key")
     # Check that the private key is 2048 bits long
   '';
 }
