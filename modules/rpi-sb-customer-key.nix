@@ -15,8 +15,23 @@ in
   # "config" parses the options and creats our module's nixOS configuration.
   config = lib.mkIf cfg.enable {
     systemd.services."rpi-sb-customer-key" = {
-      wantedBy = [ "multi-user.target" ];
-      after = [ "local-fs.target" ];
+      wantedBy = [ "default.target" ];
+      after = [ "rpi-sb-customer-keygen.service" ];
+      serviceConfig = {
+        Type = "oneshot";
+        User = "rpi-sb-customer-key";
+        Group = "rpi-sb-customer-key";
+        WorkingDirectory = "/var/lib/rpi-sb-customer-key";
+        RemainAfterExit = true;
+        ExecStart = ''
+          /bin/sh -c "${pkgs.coreutils}/bin/echo 'rpi-sb-customer-key service running'"
+          '';
+      };
+    };
+
+    # Create a service that generates a customer key if one does not already exist.
+    systemd.services."rpi-sb-customer-keygen" = {
+      wantedBy = [ "rpi-sb-customer-key.service" "default.target" ];
       unitConfig = {
         RequiresMountsFor = "/var/lib/rpi-sb-customer-key";
       };
