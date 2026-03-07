@@ -31,7 +31,7 @@ let
     # See the docs here: https://nixos.org/manual/nixos/stable/index.html#sec-nixos-tests is close
     testScript = ''
       start_all()
-      raspberryPi.wait_for_unit("rpi-sb-customer-keygen.service")  # Wait for our service to run, which creates the key
+      raspberryPi.wait_for_unit("default.target")  # Wait for our service to run, which creates the key
       # Check that the private key is 2048 bits long
       raspberryPi.succeed("openssl rsa -in /run/rpi-sb-customer-key/rpi-sb-customer-private-key -text -noout | grep 'Private-Key: (2048 bit'")
       # Check that we have a public key matching the private key.
@@ -51,8 +51,23 @@ in
   create-new-keypair = generateKeyTest "Test customer key is created correctly when an existing key is not provided." {};
   
   use-existing-private-key = generateKeyTest "Test functionality when we use an existing private key." {
-    boot.initrd.postDeviceCommands = ''
-      /bin/sh -c "${pkgs.openssl}/bin/openssl genrsa 2048 > /run/rpi-sb-customer-key/test-rpi-sb-customer-private-key"
-    '';
+    # Create a service to inject an existing private key before the generate key service starts
+    systemd.services."rpi-sb-customer-keygen-test" = {
+      wantedBy = [ "rpi-sb-customer-keygen.service" ];
+      before = [ "rpi-sb-customer-keygen.service" ];
+      unitConfig = {
+        RequiresMountsFor = "/run/rpi-sb-customer-key";
+      };
+      serviceConfig = {
+        Type = "oneshot";
+        User = "rpi-sb-customer-key";
+        Group = "rpi-sb-customer-key";
+        WorkingDirectory = "/run/rpi-sb-customer-key";
+        RemainAfterExit = true;
+        ExecStart = ''
+          /bin/sh -c "${pkgs.openssl}/bin/openssl genrsa 2048 > rpi-sb-customer-private-key && ${pkgs.coreutils}/bin/cp rpi-sb-customer-private-key test-rpi-sb-customer-private-key" 
+          '';
+      };
+    };
   };
 }
