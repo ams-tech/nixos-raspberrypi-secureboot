@@ -41,7 +41,7 @@ let
         if [ -f '/var/lib/rpi-sb-customer-key/test-rpi-sb-customer-private-key' ]; then 
           diff /var/lib/rpi-sb-customer-key/rpi-sb-customer-private-key /var/lib/rpi-sb-customer-key/test-rpi-sb-customer-private-key
         else
-          echo "Test Key does not exist; skipping" 
+          echo "Test Key does not exist; skipping"
         fi
       """)
      '';

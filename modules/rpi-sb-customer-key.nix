@@ -14,7 +14,7 @@ in
     # The working directory for this module.  We default this to /run because we want it to not persist through reboots -- it's a naked private key, after all!
     services.rpiSbCustomerKey.workingDirectory = lib.mkOption {
       type = lib.types.str;
-      default = "/var/lib";
+      default = "/var/lib/rpi-sb-customer-key";
       description = "Working directory of this service; typically something that's NOT persistent through a reboot.";
     };
   };
@@ -28,7 +28,7 @@ in
         Type = "oneshot";
         User = "rpi-sb-customer-key";
         Group = "rpi-sb-customer-key";
-        WorkingDirectory = "${cfg.workingDirectory}/rpi-sb-customer-key";
+        WorkingDirectory = "${cfg.workingDirectory}";
         RemainAfterExit = true;
         ExecStart = ''
           /bin/sh -c "${pkgs.coreutils}/bin/echo 'rpi-sb-customer-key service running'"
@@ -40,15 +40,15 @@ in
     systemd.services."rpi-sb-customer-keygen" = {
       wantedBy = [ "rpi-sb-customer-key.service" ];
       unitConfig = {
-        RequiresMountsFor = "${cfg.workingDirectory}/rpi-sb-customer-key";
+        RequiresMountsFor = "${cfg.workingDirectory}";
         # Don't run if a private key already exists.
-        ConditionPathExists = "!${cfg.workingDirectory}/rpi-sb-customer-key/rpi-sb-customer-private-key";
+        ConditionPathExists = "!${cfg.workingDirectory}/rpi-sb-customer-private-key";
       };
       serviceConfig = {
         Type = "oneshot";
         User = "rpi-sb-customer-key";
         Group = "rpi-sb-customer-key";
-        WorkingDirectory = "${cfg.workingDirectory}/rpi-sb-customer-key";
+        WorkingDirectory = "${cfg.workingDirectory}";
         RemainAfterExit = true;
         ExecStart = ''
           /bin/sh -c "${pkgs.openssl}/bin/openssl genrsa 2048 > rpi-sb-customer-private-key && ${pkgs.openssl}/bin/openssl rsa -in rpi-sb-customer-private-key -pubout > rpi-sb-customer-public-key" 
@@ -57,7 +57,7 @@ in
     };
 
     users.users.rpi-sb-customer-key = {
-      home = "${cfg.workingDirectory}/rpi-sb-customer-key";
+      home = "${cfg.workingDirectory}";
       createHome = true;
       isSystemUser = true;
       group = "rpi-sb-customer-key";
