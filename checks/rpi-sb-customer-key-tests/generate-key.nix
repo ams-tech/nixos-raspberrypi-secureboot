@@ -1,8 +1,7 @@
 { pkgs }:
-{
-  create-new-key = pkgs.testers.runNixOSTest {
-    name = "Test customer key is created correctly when an existing key is not provided.";
-    
+let
+  generateKeyTest = name: pkgs.testers.runNixOSTest {
+    name = name;
     # `nodes` define the VMs we spin up as part of this test.
     nodes = {
       # Our mock raspberry pi, which does not have an existing key provided.
@@ -31,4 +30,7 @@
       raspberryPi.succeed("openssl rsa -in /var/lib/rpi-sb-customer-key/rpi-sb-customer-private-key -pubout | grep -qf /var/lib/rpi-sb-customer-key/rpi-sb-customer-public-key")
     '';
   };
+in
+{
+  create-new-key = generateKeyTest "Test customer key is created correctly when an existing key is not provided.";
 }
