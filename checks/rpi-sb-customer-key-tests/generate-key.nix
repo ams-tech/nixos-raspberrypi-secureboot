@@ -1,6 +1,7 @@
 { pkgs }:
 let
-  generateKeyTest = name: extra-rpi-config: pkgs.testers.runNixOSTest {
+  # This is the base attribute set for our "rpi-sb-customer-keygen" tests.
+  generateKeyTest = name: extraConfig: pkgs.testers.runNixOSTest {
     name = name;
     # `nodes` define the VMs we spin up as part of this test.
     nodes = {
@@ -10,13 +11,13 @@ let
         {
           imports = [ 
             ../../modules/rpi-sb-customer-key.nix 
-            extra-rpi-config
+            extraConfig
             ];  # Import our module to generate the customer key
           services.rpiSbCustomerKey = 
           {
             enable = true;
           };
-          # Since we're only testing the "generate key" 
+          # Since we're only testing the "rpi-sb-customer-keygen" service, disable the top-level service.
           systemd.services."rpi-sb-customer-key".enable = false;
           systemd.services."rpi-sb-customer-keygen".enable = true;
           environment.systemPackages = [ pkgs.openssl ];
@@ -36,4 +37,7 @@ let
 in
 {
   create-new-key = generateKeyTest "Test customer key is created correctly when an existing key is not provided." {};
+  do-not-overwrite-existing-key = generateKeyTest "Test that an existing customer key is not overwritten." {
+    services.rpiSbCustomerKey.enable = false;
+  };
 }
