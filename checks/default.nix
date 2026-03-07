@@ -1,2 +1,2 @@
 {pkgs, ...}:
-import ./rpi-sb-customer-key-tests/generate-key.nix {inherit pkgs;}
+import ./rpi-sb-customer-key-tests/rpi-sb-customer-keygen.nix {inherit pkgs;}

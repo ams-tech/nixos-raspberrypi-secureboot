@@ -8,9 +8,6 @@ let
       # Our mock raspberry pi, which does not have an existing key provided.
       raspberryPi = 
         { pkgs, config, ... }:
-        let
-          
-        in
         {
           # Import our module to generate the customer key, along with the extraRpiConfig passed to the test.
           imports = [ 
