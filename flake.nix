@@ -30,7 +30,7 @@
       };
 
       # Checks are the automated tests for our flake.
-      checks = import ./checks {};
+      checks = import ./checks {inherit pkgs;};
     }
   );
 }
