@@ -1,6 +1,6 @@
 { pkgs }:
 let
-  generateKeyTest = name: pkgs.testers.runNixOSTest {
+  generateKeyTest = name: extra-rpi-config: pkgs.testers.runNixOSTest {
     name = name;
     # `nodes` define the VMs we spin up as part of this test.
     nodes = {
@@ -8,7 +8,10 @@ let
       raspberryPi = 
         { pkgs, ... }:
         {
-          imports = [ ../../modules/rpi-sb-customer-key.nix ];  # Import our module to generate the customer key
+          imports = [ 
+            ../../modules/rpi-sb-customer-key.nix 
+            extra-rpi-config
+            ];  # Import our module to generate the customer key
           services.rpiSbCustomerKey = 
           {
             enable = true;
@@ -32,5 +35,5 @@ let
   };
 in
 {
-  create-new-key = generateKeyTest "Test customer key is created correctly when an existing key is not provided.";
+  create-new-key = generateKeyTest "Test customer key is created correctly when an existing key is not provided." {};
 }
