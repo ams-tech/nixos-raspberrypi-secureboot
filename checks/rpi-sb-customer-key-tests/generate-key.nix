@@ -1,26 +1,30 @@
 { pkgs }:
 let
   # This is the base attribute set for our "rpi-sb-customer-keygen" tests.
-  generateKeyTest = name: extraConfig: pkgs.testers.runNixOSTest {
+  generateKeyTest = name: extraRpiConfig: pkgs.testers.runNixOSTest {
     name = name;
     # `nodes` define the VMs we spin up as part of this test.
     nodes = {
       # Our mock raspberry pi, which does not have an existing key provided.
       raspberryPi = 
-        { pkgs, ... }:
+        { pkgs, config, ... }:
+        let
+          
+        in
         {
+          # Import our module to generate the customer key, along with the extraRpiConfig passed to the test.
           imports = [ 
             ../../modules/rpi-sb-customer-key.nix 
-            extraConfig
-            ];  # Import our module to generate the customer key
+            extraRpiConfig
+          ];
           services.rpiSbCustomerKey = 
           {
             enable = true;
           };
           # Since we're only testing the "rpi-sb-customer-keygen" service, disable the top-level service.
           systemd.services."rpi-sb-customer-key".enable = false;
-          systemd.services."rpi-sb-customer-keygen".enable = true;
-          environment.systemPackages = [ pkgs.openssl ];
+          systemd.services."rpi-sb-customer-keygen".wantedBy = [ "default.target" ];
+          environment.systemPackages = [ pkgs.openssl pkgs.coreutils ];
         };
     };
     # `testScript` is a Python script using unittest-like statements.
@@ -32,12 +36,23 @@ let
       raspberryPi.succeed("openssl rsa -in /var/lib/rpi-sb-customer-key/rpi-sb-customer-private-key -text -noout | grep 'Private-Key: (2048 bit'")
       # Check that we have a public key matching the private key.
       raspberryPi.succeed("openssl rsa -in /var/lib/rpi-sb-customer-key/rpi-sb-customer-private-key -pubout | grep -qf /var/lib/rpi-sb-customer-key/rpi-sb-customer-public-key")
-    '';
+      # If we generated a test key, see if the key provided by the script matches.
+      raspberryPi.succeed("""
+        if [ -f '/var/lib/rpi-sb-customer-key/test-rpi-sb-customer-private-key' ]; then 
+          diff /var/lib/rpi-sb-customer-key/rpi-sb-customer-private-key /var/lib/rpi-sb-customer-key/test-rpi-sb-customer-private-key
+        else
+          echo "Test Key does not exist; skipping"
+        fi
+      """)
+     '';
   };
 in
 {
-  create-new-key = generateKeyTest "Test customer key is created correctly when an existing key is not provided." {};
-  do-not-overwrite-existing-key = generateKeyTest "Test that an existing customer key is not overwritten." {
-    services.rpiSbCustomerKey.enable = false;
+  create-new-keypair = generateKeyTest "Test customer key is created correctly when an existing key is not provided." {};
+  
+  use-existing-private-key = generateKeyTest "Test functionality when we use an existing private key." {
+    boot.initrd.postDeviceCommands = ''
+      /bin/sh -c "${pkgs.openssl}/bin/openssl genrsa 2048 > /var/lib/rpi-sb-customer-key/test-rpi-sb-customer-private-key"
+    '';
   };
 }

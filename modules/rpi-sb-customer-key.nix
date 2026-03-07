@@ -31,9 +31,11 @@ in
 
     # Create a service that generates a customer key if one does not already exist.
     systemd.services."rpi-sb-customer-keygen" = {
-      wantedBy = [ "rpi-sb-customer-key.service" "default.target" ];
+      wantedBy = [ "rpi-sb-customer-key.service" ];
       unitConfig = {
         RequiresMountsFor = "/var/lib/rpi-sb-customer-key";
+        # Don't run if a private key already exists.
+        ConditionPathExists = "!/var/lib/rpi-sb-customer-key/rpi-sb-customer-private-key";
       };
       serviceConfig = {
         Type = "oneshot";
