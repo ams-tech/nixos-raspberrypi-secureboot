@@ -1,7 +1,7 @@
 { pkgs }:
 let
   # This is the base attribute set for our "rpi-sb-customer-keygen" tests.
-  generateKeyTest = name: extraRpiConfig: pkgs.testers.runNixOSTest {
+  generateKeyTest = name: extraRpiConfig: extraTestScript: pkgs.testers.runNixOSTest {
     name = name;
     # `nodes` define the VMs we spin up as part of this test.
     nodes = {
@@ -36,19 +36,11 @@ let
       raspberryPi.succeed("openssl rsa -in /run/rpi-sb-customer-key/rpi-sb-customer-private-key -text -noout | grep 'Private-Key: (2048 bit'")
       # Check that we have a public key matching the private key.
       raspberryPi.succeed("openssl rsa -in /run/rpi-sb-customer-key/rpi-sb-customer-private-key -pubout | grep -qf /run/rpi-sb-customer-key/rpi-sb-customer-public-key")
-      # If we generated a test key, see if the key provided by the script matches.
-      raspberryPi.succeed("""
-        if [ -f '/run/rpi-sb-customer-key/test-rpi-sb-customer-private-key' ]; then 
-          diff /run/rpi-sb-customer-key/rpi-sb-customer-private-key /run/rpi-sb-customer-key/test-rpi-sb-customer-private-key
-        else
-          echo "Test Key does not exist; skipping"
-        fi
-      """)
-     '';
+     '' + extraTestScript;
   };
 in
 {
-  create-new-keypair = generateKeyTest "Test customer key is created correctly when an existing key is not provided." {};
+  create-new-keypair = generateKeyTest "Test customer key is created correctly when an existing key is not provided." {} "";
   
   use-existing-private-key = generateKeyTest "Test functionality when we use an existing private key." {
     # Create a service to inject an existing private key before the generate key service starts
@@ -69,5 +61,13 @@ in
           '';
       };
     };
-  };
+  } 
+  # Extra test script for use-existing-private-key
+  ''
+    # Verify the previously existing key is the one we use
+    raspberryPi.succeed("""
+      diff /run/rpi-sb-customer-key/rpi-sb-customer-private-key /run/rpi-sb-customer-key/test-rpi-sb-customer-private-key
+    """)
+  ''
+  ;
 }
