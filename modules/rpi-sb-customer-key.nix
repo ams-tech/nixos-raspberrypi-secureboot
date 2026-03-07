@@ -14,7 +14,7 @@ in
     # The working directory for this module.  We default this to /run because we want it to not persist through reboots -- it's a naked private key, after all!
     services.rpiSbCustomerKey.workingDirectory = lib.mkOption {
       type = lib.types.path;
-      default = "/var/lib/rpi-sb-customer-key";
+      default = "/run/rpi-sb-customer-key";
       description = "Working directory of this service; typically something that's NOT persistent through a reboot.";
     };
   };

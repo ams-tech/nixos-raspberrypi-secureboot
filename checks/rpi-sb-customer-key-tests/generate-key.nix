@@ -33,13 +33,13 @@ let
       start_all()
       raspberryPi.wait_for_unit("rpi-sb-customer-keygen.service")  # Wait for our service to run, which creates the key
       # Check that the private key is 2048 bits long
-      raspberryPi.succeed("openssl rsa -in /var/lib/rpi-sb-customer-key/rpi-sb-customer-private-key -text -noout | grep 'Private-Key: (2048 bit'")
+      raspberryPi.succeed("openssl rsa -in /run/rpi-sb-customer-key/rpi-sb-customer-private-key -text -noout | grep 'Private-Key: (2048 bit'")
       # Check that we have a public key matching the private key.
-      raspberryPi.succeed("openssl rsa -in /var/lib/rpi-sb-customer-key/rpi-sb-customer-private-key -pubout | grep -qf /var/lib/rpi-sb-customer-key/rpi-sb-customer-public-key")
+      raspberryPi.succeed("openssl rsa -in /run/rpi-sb-customer-key/rpi-sb-customer-private-key -pubout | grep -qf /run/rpi-sb-customer-key/rpi-sb-customer-public-key")
       # If we generated a test key, see if the key provided by the script matches.
       raspberryPi.succeed("""
-        if [ -f '/var/lib/rpi-sb-customer-key/test-rpi-sb-customer-private-key' ]; then 
-          diff /var/lib/rpi-sb-customer-key/rpi-sb-customer-private-key /var/lib/rpi-sb-customer-key/test-rpi-sb-customer-private-key
+        if [ -f '/run/rpi-sb-customer-key/test-rpi-sb-customer-private-key' ]; then 
+          diff /run/rpi-sb-customer-key/rpi-sb-customer-private-key /run/rpi-sb-customer-key/test-rpi-sb-customer-private-key
         else
           echo "Test Key does not exist; skipping"
         fi
@@ -52,7 +52,7 @@ in
   
   use-existing-private-key = generateKeyTest "Test functionality when we use an existing private key." {
     boot.initrd.postDeviceCommands = ''
-      /bin/sh -c "${pkgs.openssl}/bin/openssl genrsa 2048 > /var/lib/rpi-sb-customer-key/test-rpi-sb-customer-private-key"
+      /bin/sh -c "${pkgs.openssl}/bin/openssl genrsa 2048 > /run/rpi-sb-customer-key/test-rpi-sb-customer-private-key"
     '';
   };
 }
