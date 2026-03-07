@@ -41,8 +41,6 @@ in
       wantedBy = [ "rpi-sb-customer-key.service" ];
       unitConfig = {
         RequiresMountsFor = "${cfg.workingDirectory}";
-        # Don't run if a private key already exists.
-        ConditionPathExists = "!${cfg.workingDirectory}/rpi-sb-customer-private-key";
       };
       serviceConfig = {
         Type = "oneshot";
@@ -51,7 +49,7 @@ in
         WorkingDirectory = "${cfg.workingDirectory}";
         RemainAfterExit = true;
         ExecStart = ''
-          /bin/sh -c "${pkgs.openssl}/bin/openssl genrsa 2048 > rpi-sb-customer-private-key && ${pkgs.openssl}/bin/openssl rsa -in rpi-sb-customer-private-key -pubout > rpi-sb-customer-public-key" 
+          /bin/sh -c "if [ ! -f rpi-sb-customer-private-key ]; then ${pkgs.openssl}/bin/openssl genrsa 2048 > rpi-sb-customer-private-key; fi && ${pkgs.openssl}/bin/openssl rsa -in rpi-sb-customer-private-key -pubout > rpi-sb-customer-public-key" 
         '';
       };
     };
