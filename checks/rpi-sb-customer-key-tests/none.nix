@@ -1,12 +1,31 @@
 { pkgs, rpiSbCustomerKeyTest }:
+let
+  rpiSbCustomerKeyNoneTest = {name, extraRpiConfig, extraTestScript}: rpiSbCustomerKeyTest {
+    inherit name;
+    extraRpiConfig = extraRpiConfig // {
+      services.rpiSbCustomerKey = 
+      {
+        secretsProvider = "none";
+      };
+    };
+    testScript = ''
+      start_all()
+      raspberryPi.wait_for_unit("default.target")  # Wait for our service to run, which creates the key
+      # Check that the private key is 2048 bits long
+      raspberryPi.succeed("openssl rsa -in /run/rpi-sb-customer-key/rpi-sb-customer-private-key -text -noout | grep 'Private-Key: (2048 bit'")
+      # Check that we have a public key matching the private key.
+      raspberryPi.succeed("openssl rsa -in /run/rpi-sb-customer-key/rpi-sb-customer-private-key -pubout | grep -qf /run/rpi-sb-customer-key/rpi-sb-customer-public-key")
+    '' + extraTestScript;
+  };
+in
 {
-  create-new-keypair = rpiSbCustomerKeyTest {
+  create-new-keypair = rpiSbCustomerKeyNoneTest {
     name = "Test customer key is created correctly when an existing key is not provided.";
     extraRpiConfig = {};
     extraTestScript = "";
   };
   
-  use-existing-private-key = rpiSbCustomerKeyTest {
+  use-existing-private-key = rpiSbCustomerKeyNoneTest {
     name = "Test functionality when we use an existing private key.";
     extraRpiConfig = {
       # Create a service to inject an existing private key before the generate key service starts
