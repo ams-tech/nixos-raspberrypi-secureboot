@@ -11,7 +11,7 @@ let
         {
           # Import our module to generate the customer key, along with the extraRpiConfig passed to the test.
           imports = [ 
-            ../../modules/rpi-sb-customer-key.nix 
+            ../../modules/rpi-sb-customer-key 
             extraRpiConfig
           ];
           services.rpiSbCustomerKey = 
