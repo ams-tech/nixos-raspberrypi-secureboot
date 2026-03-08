@@ -43,6 +43,10 @@ in
       };
     };
 
+    systemd.services."rpi-sb-sops-nix-load-key" = lib.mkIf cfg.secretsProvider == "sops-nix" {
+      
+    };
+
     # Create a service that generates a customer key if one does not already exist.
     systemd.services."rpi-sb-customer-keygen" = {
       wantedBy = [ "rpi-sb-customer-key.service" ];

@@ -1,7 +1,7 @@
 { pkgs }:
 let
   # This is the base attribute set for our "rpi-sb-customer-keygen" tests.
-  loadKeyTest = name: extraRpiConfig: extraTestScript: pkgs.testers.runNixOSTest {
+  rpiSbCustomerKeyTest = name: extraRpiConfig: extraTestScript: pkgs.testers.runNixOSTest {
     name = name;
     # `nodes` define the VMs we spin up as part of this test.
     nodes = {
@@ -18,10 +18,6 @@ let
           {
             enable = true;
           };
-          # Since we're only testing the "rpi-sb-customer-keygen" service, disable the top-level service.
-          systemd.services."rpi-sb-customer-key".enable = false;
-          systemd.services."rpi-sb-customer-keygen".enable = false;
-          systemd.services."rpi-sb-customer-key-load".wantedBy = [ "default.target" ];
           environment.systemPackages = [ pkgs.openssl pkgs.coreutils ];
         };
     };
@@ -30,9 +26,13 @@ let
     testScript = ''
       start_all()
       raspberryPi.wait_for_unit("default.target")  # Wait for our service to run, which creates the key
-     '' + extraTestScript;
+    '' + extraTestScript;
   };
 in
 {
-  no- = loadKeyTest "" {} "";
+  create-new-keypair = rpiSbCustomerKeyTest {
+    name = "Test customer key is created correctly when an existing key is not provided."; 
+    extraRpiConfig = {}; 
+    extraTestScript = "";
+  };
 }
