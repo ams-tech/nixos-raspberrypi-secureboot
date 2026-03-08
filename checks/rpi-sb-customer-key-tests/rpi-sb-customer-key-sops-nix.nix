@@ -17,6 +17,7 @@ let
           services.rpiSbCustomerKey = 
           {
             enable = true;
+            secretsProvider = "sops-nix";
           };
           environment.systemPackages = [ pkgs.openssl pkgs.coreutils ];
         };
@@ -28,6 +29,9 @@ let
       raspberryPi.wait_for_unit("default.target")  # Wait for our service to run, which creates the key
     '' + extraTestScript;
   };
+  expectedResultsTestScript = ''
+
+  '';
 in
 {
   create-new-keypair = rpiSbCustomerKeyTest {

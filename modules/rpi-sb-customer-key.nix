@@ -8,7 +8,7 @@ in
   # options allows consumers of this module to enable/disable it programatically & change underlying constants.
   # See https://nix.dev/tutorials/module-system/deep-dive for details.
   options = {
-      # This defines a configuration option `services.rpiSbCustomerKey.enable` that the user can set to true to enable our module. We can then check this option in our `config` to conditionally include the logic for generating the customer key.
+    # This defines a configuration option `services.rpiSbCustomerKey.enable` that the user can set to true to enable our module. We can then check this option in our `config` to conditionally include the logic for generating the customer key.
     # Note that this does not necessarily imply the systemd service is "enabled" -- this just enables the module in nixOS.
     services.rpiSbCustomerKey = {
       enable = lib.mkEnableOption "Enable rpiSbCustomerKey Module"; 
@@ -28,19 +28,9 @@ in
 
   # "config" parses the options and creats our module's nixOS configuration.
   config = lib.mkIf cfg.enable {
-    systemd.services."rpi-sb-customer-key" = {
+    systemd.targets."rpi-sb-customer-key" = {
+      description = "";
       wantedBy = [ "default.target" ];
-      after = [ "rpi-sb-customer-keygen.service" ];
-      serviceConfig = {
-        Type = "oneshot";
-        User = "rpi-sb-customer-key";
-        Group = "rpi-sb-customer-key";
-        WorkingDirectory = "${cfg.workingDirectory}";
-        RemainAfterExit = true;
-        ExecStart = ''
-          /bin/sh -c "${pkgs.coreutils}/bin/echo 'rpi-sb-customer-key service running'"
-          '';
-      };
     };
 
     systemd.services."rpi-sb-sops-nix-load-key" = lib.mkIf (cfg.secretsProvider == "sops-nix") {
@@ -49,7 +39,7 @@ in
 
     # Create a service that generates a customer key if one does not already exist.
     systemd.services."rpi-sb-customer-keygen" = {
-      wantedBy = [ "rpi-sb-customer-key.service" ];
+      wantedBy = [ "rpi-sb-customer-key.target" ];
       unitConfig = {
         RequiresMountsFor = "${cfg.workingDirectory}";
       };
