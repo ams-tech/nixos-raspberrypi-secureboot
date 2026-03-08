@@ -16,7 +16,7 @@ in
       # The working directory for this module.  We default this to /run because we want it to not persist through reboots -- it's a naked private key, after all!
       workingDirectory = lib.mkOption {
         type = lib.types.path;
-        default = /run/rpi-sb-customer-key;
+        default = "/run/rpi-sb-customer-key";
         description = "Working directory of this service; typically something that's NOT persistent through a reboot.";
         internal = true;
       };
@@ -41,10 +41,6 @@ in
       wantedBy = [ "default.target" ];
     };
 
-    systemd.services."rpi-sb-sops-nix-load-key" = lib.mkIf (cfg.secretsProvider == "sops-nix") {
-      
-    };
-
     # Create a service that generates a customer key if one does not already exist.
     systemd.services."rpi-sb-customer-keygen" = {
       wantedBy = [ "rpi-sb-customer-key.target" ];
@@ -53,8 +49,8 @@ in
       };
       serviceConfig = {
         Type = "oneshot";
-        User = "rpi-sb-customer-key";
-        Group = "rpi-sb-customer-key";
+        User = cfg.username;
+        Group = cfg.username;
         WorkingDirectory = cfg.workingDirectory;
         RemainAfterExit = true;
         ExecStart = ''
@@ -63,12 +59,12 @@ in
       };
     };
 
-    users.users.rpi-sb-customer-key = {
+    users.users.${cfg.username} = {
       home = cfg.workingDirectory;
       createHome = true;
       isSystemUser = true;
-      group = "rpi-sb-customer-key";
+      group = cfg.username;
     };
-    users.groups.rpi-sb-customer-key = { };
+    users.groups.${cfg.username} = { };
   };
 }
