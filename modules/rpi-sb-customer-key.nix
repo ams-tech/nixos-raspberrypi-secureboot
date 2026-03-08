@@ -43,7 +43,7 @@ in
       };
     };
 
-    systemd.services."rpi-sb-sops-nix-load-key" = lib.mkIf cfg.secretsProvider == "sops-nix" {
+    systemd.services."rpi-sb-sops-nix-load-key" = lib.mkIf (cfg.secretsProvider == "sops-nix") {
       
     };
 

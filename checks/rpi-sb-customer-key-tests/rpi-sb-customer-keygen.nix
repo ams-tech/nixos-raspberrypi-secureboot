@@ -17,7 +17,7 @@ let
           services.rpiSbCustomerKey = 
           {
             enable = true;
-            secretsProvider = "";
+            secretsProvider = "none";
           };
           # Since we're only testing the "rpi-sb-customer-keygen" service, disable the top-level service.
           systemd.services."rpi-sb-customer-key".enable = false;

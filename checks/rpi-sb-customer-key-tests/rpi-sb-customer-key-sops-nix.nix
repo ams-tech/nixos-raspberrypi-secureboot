@@ -1,7 +1,7 @@
 { pkgs }:
 let
   # This is the base attribute set for our "rpi-sb-customer-keygen" tests.
-  rpiSbCustomerKeyTest = name: extraRpiConfig: extraTestScript: pkgs.testers.runNixOSTest {
+  rpiSbCustomerKeyTest = {name, extraRpiConfig, extraTestScript}: pkgs.testers.runNixOSTest {
     name = name;
     # `nodes` define the VMs we spin up as part of this test.
     nodes = {
