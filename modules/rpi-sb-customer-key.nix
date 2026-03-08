@@ -10,12 +10,19 @@ in
   options = {
       # This defines a configuration option `services.rpiSbCustomerKey.enable` that the user can set to true to enable our module. We can then check this option in our `config` to conditionally include the logic for generating the customer key.
     # Note that this does not necessarily imply the systemd service is "enabled" -- this just enables the module in nixOS.
-    services.rpiSbCustomerKey.enable = lib.mkEnableOption "Enable rpiSbCustomerKey Module"; 
-    # The working directory for this module.  We default this to /run because we want it to not persist through reboots -- it's a naked private key, after all!
-    services.rpiSbCustomerKey.workingDirectory = lib.mkOption {
-      type = lib.types.path;
-      default = "/run/rpi-sb-customer-key";
-      description = "Working directory of this service; typically something that's NOT persistent through a reboot.";
+    services.rpiSbCustomerKey = {
+      enable = lib.mkEnableOption "Enable rpiSbCustomerKey Module"; 
+      # The working directory for this module.  We default this to /run because we want it to not persist through reboots -- it's a naked private key, after all!
+      workingDirectory = lib.mkOption {
+        type = lib.types.path;
+        default = "/run/rpi-sb-customer-key";
+        description = "Working directory of this service; typically something that's NOT persistent through a reboot.";
+      };
+      secretsProvider = lib.mkOption {
+        type = lib.types.enum [ "sops-nix" "none" ];
+        default = "sops-nix";
+        description = "The secrets provider used for storing our secrets.";
+      };
     };
   };
 
