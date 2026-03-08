@@ -5,6 +5,7 @@ let
 cfg = config.services.rpiSbCustomerKey; # This is how we access the configuration options for our module, which are defined in `options` below. The user will set these options in their nixOS configuration, and we can use them to customize the behavior of our module.
 in
 {
+  imports = [ ./providers/secrets/sops-nix.nix ];
   # options allows consumers of this module to enable/disable it programatically & change underlying constants.
   # See https://nix.dev/tutorials/module-system/deep-dive for details.
   options = {
@@ -15,8 +16,15 @@ in
       # The working directory for this module.  We default this to /run because we want it to not persist through reboots -- it's a naked private key, after all!
       workingDirectory = lib.mkOption {
         type = lib.types.path;
-        default = "/run/rpi-sb-customer-key";
+        default = /run/rpi-sb-customer-key;
         description = "Working directory of this service; typically something that's NOT persistent through a reboot.";
+        internal = true;
+      };
+      username = lib.mkOption {
+        type = lib.types.str;
+        default = "rpi-sb-customer-key";
+        description = "The name of the user & group used by this module";
+        internal = true;
       };
       secretsProvider = lib.mkOption {
         type = lib.types.enum [ "sops-nix" "none" ];
@@ -41,13 +49,13 @@ in
     systemd.services."rpi-sb-customer-keygen" = {
       wantedBy = [ "rpi-sb-customer-key.target" ];
       unitConfig = {
-        RequiresMountsFor = "${cfg.workingDirectory}";
+        RequiresMountsFor = cfg.workingDirectory;
       };
       serviceConfig = {
         Type = "oneshot";
         User = "rpi-sb-customer-key";
         Group = "rpi-sb-customer-key";
-        WorkingDirectory = "${cfg.workingDirectory}";
+        WorkingDirectory = cfg.workingDirectory;
         RemainAfterExit = true;
         ExecStart = ''
           /bin/sh -c "if [ ! -f rpi-sb-customer-private-key ]; then ${pkgs.openssl}/bin/openssl genrsa 2048 > rpi-sb-customer-private-key; fi && ${pkgs.openssl}/bin/openssl rsa -in rpi-sb-customer-private-key -pubout > rpi-sb-customer-public-key" 
@@ -56,7 +64,7 @@ in
     };
 
     users.users.rpi-sb-customer-key = {
-      home = "${cfg.workingDirectory}";
+      home = cfg.workingDirectory;
       createHome = true;
       isSystemUser = true;
       group = "rpi-sb-customer-key";
