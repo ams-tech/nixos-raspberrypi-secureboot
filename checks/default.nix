@@ -20,7 +20,6 @@ let
           services.rpiSbCustomerKey = 
           {
             enable = true;
-            secretsProvider = "none";
           };
           environment.systemPackages = [ pkgs.openssl pkgs.coreutils ];
         };

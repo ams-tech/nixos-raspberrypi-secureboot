@@ -16,12 +16,15 @@ in
         type = lib.types.path;
         default = "/run/rpi-sb-customer-key";
         description = "Working directory of this service; typically something that's NOT persistent through a reboot.";
+        internal = true;
       };
     };
   };
 
   # "config" parses the options and creats our module's nixOS configuration.
-  config = lib.mkIf (cfg.enable.secretsProvider == "sops-nix") {
-    
+  config = lib.mkIf (cfg.secretsProvider == "sops-nix") {
+    systemd.services."rpi-sb-customer-key-sopx-nix" = {
+      enable = true;
+    };
   };
 }
