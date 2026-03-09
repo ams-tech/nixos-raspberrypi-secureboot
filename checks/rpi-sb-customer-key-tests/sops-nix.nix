@@ -13,11 +13,12 @@ let
 in
 {
   sops-nix-no-configuration = rpiSbCustomerKeySopsNixTest {
-    name = "No sops-nix configuration results in service failing.";
+    name = "No sops-nix configuration results in service failing";
     extraRpiConfig = {};
     testScript = ''
       start_all()
-      raspberryPi.wait_for_unit("default.target")  # Wait for our service to run, which creates the key
+      with t.assertRaises(AssertionError):
+        raspberryPi.wait_for_unit("rpi-sb-customer-key-sops-nix.service") 
     '';
   };
 }
