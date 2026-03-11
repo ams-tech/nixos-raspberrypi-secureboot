@@ -1,6 +1,6 @@
 {pkgs, ...}:
 let
-  # This is the base attribute set for our "rpi-sb-customer-keygen" tests.
+  # This is the base attribute set for our "rpi-sb-customer-key" tests.
   rpiSbCustomerKeyTest = {name, extraRpiConfig, testScript}: pkgs.testers.runNixOSTest {
     # `testScript` is a Python script using unittest-like statements.
     # See the docs here: https://nixos.org/manual/nixos/stable/index.html#sec-nixos-tests is close
@@ -13,7 +13,7 @@ let
         { pkgs, config, ... }:
         {
           # Import our module to generate the customer key, along with the extraRpiConfig passed to the test.
-          imports = [ 
+          imports = [
             ../modules/rpi-sb-customer-key 
             extraRpiConfig
           ];

@@ -11,14 +11,14 @@ in
     # This defines a configuration option `services.rpiSbCustomerKey.enable` that the user can set to true to enable our module. We can then check this option in our `config` to conditionally include the logic for generating the customer key.
     # Note that this does not necessarily imply the systemd service is "enabled" -- this just enables the module in nixOS.
     services.rpiSbCustomerKey.sops-nix = {
-
+      
     };
   };
 
   # "config" parses the options and creats our module's nixOS configuration.
   config = lib.mkIf (cfg.secretsProvider == "sops-nix") {
     systemd.services."rpi-sb-customer-key-sops-nix" = {
-      wantedBy = [ "rpi-sb-customer-keygen.service" ];
+      wantedBy = [ "rpi-sb-customer-key.service" ];
       unitConfig = {
         RequiresMountsFor = cfg.workingDirectory;
       };

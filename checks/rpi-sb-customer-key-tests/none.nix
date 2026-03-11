@@ -29,9 +29,9 @@ in
     name = "Test functionality when we use an existing private key.";
     extraRpiConfig = {
       # Create a service to inject an existing private key before the generate key service starts
-      systemd.services."rpi-sb-customer-keygen-test" = {
-        wantedBy = [ "rpi-sb-customer-keygen.service" ];
-        before = [ "rpi-sb-customer-keygen.service" ];
+      systemd.services."rpi-sb-customer-key-test" = {
+        wantedBy = [ "rpi-sb-customer-key.service" ];
+        before = [ "rpi-sb-customer-key.service" ];
         unitConfig = {
           RequiresMountsFor = "/run/rpi-sb-customer-key";
         };

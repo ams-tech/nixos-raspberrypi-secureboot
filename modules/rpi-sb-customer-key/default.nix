@@ -42,7 +42,7 @@ in
     };
 
     # Create a service that generates a customer key if one does not already exist.
-    systemd.services."rpi-sb-customer-keygen" = {
+    systemd.services."rpi-sb-customer-key" = {
       wantedBy = [ "rpi-sb-customer-key.target" ];
       unitConfig = {
         RequiresMountsFor = cfg.workingDirectory;
